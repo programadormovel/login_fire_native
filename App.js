@@ -10,13 +10,19 @@ import {
 } from "react-native";
 
 // Import the functions you need from the SDKs you need
+// yarn add "firebase/app"
 import { initializeApp } from "firebase/app";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
-import auth from "@react-native-firebase/auth";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { AsyncStorage } from "@react-native-async-storage/async-storage";
 
 const App = () => {
+
+  const [email, setEmail] = useState("");
+  // const [emailLogado, setEmailLogado] = React.useState();
+  const [password, setPassword] = useState("");
+
   // Your web app's Firebase configuration
   const firebaseConfig = {
     apiKey: "AIzaSyAmpQCqBivScgaYG-lAQzYVOrss1jY9B3Y",
@@ -29,13 +35,27 @@ const App = () => {
 
   // Initialize Firebase
   const fire = initializeApp(firebaseConfig);
+  // alert(fire.name);
 
   const auth = getAuth();
 
-  const [email, setEmail] = React.useState("");
-  // const [emailLogado, setEmailLogado] = React.useState();
-  const [password, setPassword] = React.useState("");
+  createUserWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+      // Signed in
+      const user = userCredential.user;
+      // ...
+      //setEmailLogado(user.email);
+      alert("funcionou " + email);
+    })
+    .catch((error) => {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      // ..
+      // alert(errorCode);
+      // alert(errorMessage);
+    });
 
+  
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.container}>
@@ -44,9 +64,7 @@ const App = () => {
         <TextInput
           placeholder="Digite seu e-mail"
           style={styles.caixa}
-          onChangeText={(value) => {
-            setEmail(value);
-          }}
+          onChangeText={setEmail}
           value={email}
         />
 
@@ -55,8 +73,6 @@ const App = () => {
           style={styles.caixa}
           onChangeText={setPassword}
           value={password}
-          passwordRules={true}
-          secureTextEntry={true}
         />
 
         <TouchableOpacity
@@ -66,24 +82,8 @@ const App = () => {
             padding: 8,
             borderRadius: 10,
           }}
-          onPress={ async () => {
-            
-            let response = await auth()
-              .createUserWithEmailAndPassword({ email, password })
-              .then((userCredential) => {
-                // Signed in
-                const user = userCredential.user;
-                // ...
-                setEmailLogado(user.email);
-              })
-              .catch((error) => {
-                const errorCode = error.code;
-                const errorMessage = error.message;
-                // ..
-                // alert(errorCode);
-                // alert(errorMessage);
-              });
-            alert("funcionou " + email);
+          onPress={() => {
+            createUserWithEmailAndPassword(auth, email, password);
           }}
         >
           <Text style={{ color: "white", fontWeight: "bold" }}>ENTRAR</Text>
